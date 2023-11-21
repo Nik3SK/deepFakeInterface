@@ -2,6 +2,7 @@ import os
 import streamlit as st
 import time
 from streamlit_extras.switch_page_button import switch_page
+import tempfile
 os.chdir('C:/tts3_docker_16_10')
 st.set_page_config(page_title='Создание аудиодорожки')
 uplode_text = st.file_uploader('Загрузи конспект', ['txt','docx'])
