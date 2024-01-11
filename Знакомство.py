@@ -3,7 +3,7 @@ import time
 st.set_page_config(page_title="Знакомство")
 from streamlit_extras.switch_page_button import switch_page
 st.title('Генерация видеолекций на основе фото, аудио и конспекта')
-st.subheader('На данный момент реализован функционал превращения текста в аудидорожку')
+st.subheader('Автоматическое создание контента с использование генеративных моделей')
 if st.button(label='Хочу попробовать',type='primary'):
     switch_page('Создание_аудиодорожки')
 # uplode_audio = st.file_uploader('Загрузи аудио', ['mp3'])
