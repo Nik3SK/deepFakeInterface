@@ -19,9 +19,11 @@ if (uplode_text is not None):
         f.write(uplode_text.read())
     st.subheader('Вы успешно загрузили файл, модель уже начала генерировать аудио....')
     runningModel(uplode_text.name)
-    with open('output.wav','rb') as result_file:
+    os.system('ffmpeg -i output.wav result.mp3')
+    with open('result.mp3','rb') as result_file:
         st.subheader('Модель закончила работу. Можете посмотреть и скачать вашу лекцию')
         st.download_button(label = 'Аудиодорожка',data = result_file,file_name='output.wav')
         st.audio(result_file,format='wav')
 if st.button(label = 'К следующему шагу'):
+    os.remove('result.mp3')
     switch_page('Создание_видео')
