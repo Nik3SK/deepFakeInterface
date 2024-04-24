@@ -16,7 +16,7 @@ def runningModel(text):
 
 
 # Путь модели tts
-os.chdir(r"C:\tts3_docker_16_10")
+os.chdir(r"C:\Users\Edit-PC2\Documents\DeepFake\models\tts3_docker_16_10")
 st.set_page_config(page_title='Создание аудиодорожки')
 st.title('Генерация аудиодорожки')
 st.divider()
@@ -27,7 +27,7 @@ st.subheader('Загрузи тексовый файл, к примеру кон
 uplode_text = st.file_uploader('',['txt'])
 st.session_state['castomize']='no'
 if (uplode_text is not None):
-    with open (r'C:\tts3_docker_16_10\text.txt','wb') as f:
+    with open (r'C:\Users\Edit-PC2\Documents\DeepFake\models\tts3_docker_16_10\text.txt','wb') as f:
         f.write(uplode_text.read())
     st.session_state['info_for_user1']='Вы успешно загрузили файл, модель уже начала генерировать аудио....'
     st.session_state['info_for_user2']='Модель закончила работу. Можете послушать и скачать вашу аудиодорожку'
@@ -40,11 +40,13 @@ if (uplode_text is not None):
     st.divider()
 if st.session_state['castomize']=='yes':
     st.subheader('Теперь можно кастомизировать аудиодорожку')
-    os.chdir(r"C:\Users\Никита\Desktop\interface\deepFakeInterface\weights")
+    # путь с папкой весов модели(они должны лежать в файлах модели)
+    os.chdir(r"C:\Users\Edit-PC2\Documents\DeepFake\RVC\Retrieval-based-Voice-Conversion-WebUI\assets\weights")
     all_weights_row=os.listdir()
     all_weights=[]
     for i in all_weights_row:
-        all_weights.append(i[:i.find('.pth'):])
+        if i.find('.pth')!=-1:
+            all_weights.append(i[:i.find('.pth'):])
     col1, col2= st.columns(2,gap="large")
     with col1:
         st.subheader("Выберите модель для кастомизации:")
@@ -54,17 +56,17 @@ if st.session_state['castomize']=='yes':
         st.subheader("Кастомизировать полученной аудио?")
         if option!=None and st.button('Да', type='primary',use_container_width=True):
             #Путь к папке с индексами
-            os.chdir(fr'C:\Users\Никита\Desktop\interface\deepFakeInterface\indexes\{option}')
+            os.chdir(fr'C:\Users\Edit-PC2\Documents\DeepFake\examplesForModels\indexesForRVC\{option}')
             index_file=os.listdir()[0]
             #Путь к папке с RVC
-            # os.chdir()
+            os.chdir(r'C:\Users\Edit-PC2\Documents\DeepFake\RVC\Retrieval-based-Voice-Conversion-WebUI')
             os.system('python tools\infer_cli.py --f0up_key=0 '
                     #   путь к результирующему файлу tts
-                      '--input_path=""'
+                      '--input_path="C:\Users\Edit-PC2\Documents\DeepFake\models\tts3_docker_16_10\output.wav"'
                     #   путь к индекс файлам
-                      ' --index_path="C:\Users\Edit-PC2\Documents\DeepFake\examplesForModels\weightsForRVC\\'+option+'.pth'+ '\\'+index_file+ '"'
+                      ' --index_path="C:\Users\Edit-PC2\Documents\DeepFake\examplesForModels\indexesForRVC\\'+option+ '\\'+index_file+ '"'
                     # путь для конечного, кастомизированного файла
-                      '--opt_path="test_v2.wav" '
+                      '--opt_path="output_RVC.wav" '
                       '--model_name="' + option +'" '
                       ' --index_rate=0.66 --device=cuda:0 '
                       '--is_half=True '
