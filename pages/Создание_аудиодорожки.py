@@ -6,14 +6,16 @@ import tempfile
 import shutil
 import subprocess
 import docker
+import datetime
 client = docker.from_env()
 
+
 # путь до tts модели
-way_tts="C:/Users/Edit-PC2/Documents/DeepFake/models/tts3_docker_16_10"
+way_tts="C:/Users/Edit-PC2/Documents/DeepFake/teratts_model/teratts"
 # путь до входного файла tts модели
-way_tts_input_file='C:/Users/Edit-PC2/Documents/DeepFake/models/tts3_docker_16_10/text.txt'
+way_tts_input_file='C:/Users/Edit-PC2/Documents/DeepFake/teratts_model/teratts/inputOutput/text.txt'
 # путь до выходного файла tts модели
-way_tts_output_file="C:/Users/Edit-PC2/Documents/DeepFake/models/tts3_docker_16_10/output.wav"
+way_tts_output_file="C:/Users/Edit-PC2/Documents/DeepFake/teratts_model/teratts/inputOutput/final.wav"
 # путь до RVC модели
 way_RVC="C:/Users/Edit-PC2/Documents/DeepFake/RVC/Retrieval-based-Voice-Conversion-WebUI"
 # путь до директории для входного файла RVC
@@ -27,17 +29,16 @@ way_RVC_outputs="C:/Users/Edit-PC2/Documents/DeepFake/RVC/Retrieval-based-Voice-
 @st.cache_data(show_spinner='Вы успешно загрузили файл, модель генерирует аудио')
 def runningModel(text):
     # placeholder.info(st.session_state['info_for_user1'])
-    time.sleep(3)
-    # os.system('docker compose up')
+    client.containers.run('tera',volumes=['C:/Users/Edit-PC2/Documents/DeepFake/teratts_model/teratts/inputOutput:/code/data',],auto_remove=True)
 # Путь до модели tts
 os.chdir(way_tts)
 st.set_page_config(page_title='Создание аудиодорожки')
 st.title('Генерация аудиодорожки')
 st.divider()
 st.header('Модель text-to-speech преобразует файл с текстом в аудио.'+
-          'На данном этапе генерация возможна только с голосом одного спикера мужского пола')
+          ' В данной реализации возможна генерация голосом одного спикера женского пола и кастомизация аудиофайла')
 st.divider()
-st.subheader('Загрузи тексовый файл, к примеру конспект лекции')
+st.subheader('Загрузите тексовый файл, к примеру конспект лекции')
 uplode_text = st.file_uploader('',['txt'])
 st.session_state['castomize']='no'
 if (uplode_text is not None):
@@ -48,7 +49,7 @@ if (uplode_text is not None):
     runningModel(uplode_text.name)
     placeholder.empty()
     st.success(st.session_state['info_for_user2'])
-    with open('output.wav','rb') as result_file:
+    with open(way_tts_output_file,'rb') as result_file:
         st.download_button(label = 'Аудиодорожка',data = result_file,file_name='output.wav',key='TTSfile')
         st.audio(result_file,format='wav')
     st.session_state['castomize']='yes'
@@ -56,18 +57,20 @@ if (uplode_text is not None):
 if st.session_state['castomize']=='yes':
     # ПЕРЕКИДЫВАНИЕ ФАЙЛА TTS В ДИРЕКТОРИЮ RVC
     os.chdir(way_RVC_inputs)
-    os.remove('input_file.wav')
+    if len(os.listdir(way_RVC_inputs)) != 0:
+        os.remove('input_file.wav')
     source = way_tts_output_file
     destination =way_RVC_inputs
     shutil.copy2(source, destination)
-    os.rename('output.wav','input_file.wav') 
+    os.rename('final.wav','input_file.wav') 
     st.subheader('Теперь можно кастомизировать аудиодорожку')
     #в директорию весов для RVC модели
     os.chdir(way_RVC_weights)
     all_weights_row=os.listdir()
     all_weights=[]
     for i in all_weights_row:
-        all_weights.append(i[:i.find('.pth'):])
+        if '.pth' in i:
+            all_weights.append(i[:i.find('.pth'):])
     col1, col2= st.columns(2,gap="large")
     with col1:
         if len(all_weights)==0:
